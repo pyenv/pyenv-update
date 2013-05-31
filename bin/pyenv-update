@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+set -e
+[ -n "$PYENV_DEBUG" ] && set -x
+
+if [ -z "$PYENV_ROOT" ]; then
+  PYENV_ROOT="${HOME}/.pyenv"
+fi
+
+verify_repo_origin() {
+  local repo="$1"
+  ( cd "${repo}" && git remote show origin 1>/dev/null 2>&1 ) || return 1
+}
+
+verify_repo_master() {
+  local repo="$1"
+  local name="$(cd "${repo}" && git name-rev --name-only HEAD 2>/dev/null)"
+  [[ "${name}" == "master" ]] || return 1
+}
+
+verify_repo_clean() {
+  local repo="$1"
+  if ( cd "${repo}" | git status --short ) | grep -q -v '^[!?][!?]'; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+verify_repo() {
+  local repo="$1"
+  if ! verify_repo_origin "${repo}"; then
+    echo "pyenv: ${repo} does not have origin." 1>&2
+    return 1
+  fi
+  if ! verify_repo_master "${repo}"; then
+    echo "pyenv: ${repo} is not on master branch." 1>&2
+    return 1
+  fi
+  if ! verify_repo_clean "${repo}"; then
+    echo "pyenv: ${repo} is not clean" 1>&2
+    return 1
+  fi
+}
+
+update_repo() {
+  local repo="$1"
+  if ! verify_repo "${repo}"; then
+    return 1
+  fi
+  ( cd "${repo}" && git pull origin master )
+}
+
+for repo in "${PYENV_ROOT}" "${PYENV_ROOT}/plugins/"*; do
+  if [ -d "${repo}/.git" ]; then
+    echo "Updating ${repo}..." 1>&2
+    update_repo "${repo}" || exit 1
+  fi
+done
