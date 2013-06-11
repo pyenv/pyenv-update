@@ -9,7 +9,7 @@ fi
 
 verify_repo_origin() {
   local repo="$1"
-  ( cd "${repo}" && git remote show origin 1>/dev/null 2>&1 ) || return 1
+  ( cd "${repo}" && git remote show -n origin 1>/dev/null 2>&1 ) || return 1
 }
 
 verify_repo_master() {
