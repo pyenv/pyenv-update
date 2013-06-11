@@ -20,7 +20,7 @@ verify_repo_master() {
 
 verify_repo_clean() {
   local repo="$1"
-  if ( cd "${repo}" | git status --short ) | grep -q -v '^[!?][!?]'; then
+  if ( cd "${repo}" && git status --short ) | grep -q -v '^[!?][!?]'; then
     return 1
   else
     return 0
