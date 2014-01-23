@@ -7,53 +7,66 @@ if [ -z "$PYENV_ROOT" ]; then
   PYENV_ROOT="${HOME}/.pyenv"
 fi
 
-verify_repo_origin() {
-  local repo="$1"
-  ( cd "${repo}" && git remote show -n origin 1>/dev/null 2>&1 ) || return 1
+REMOTE="${PYENV_REMOTE:-origin}"
+BRANCH="${PYENV_BRANCH:-master}"
+
+verify_repo_remote() {
+  ( cd "$1" && git remote show -n "${REMOTE}" 1>/dev/null 2>&1 )
 }
 
-verify_repo_master() {
-  local repo="$1"
-  local name="$(cd "${repo}" && git name-rev --name-only HEAD 2>/dev/null)"
-  [[ "${name}" == "master" ]] || return 1
+verify_repo_branch() {
+  local name="$(cd "$1" && git name-rev --name-only HEAD 2>/dev/null)"
+  [[ "${name}" == "${BRANCH}" ]]
 }
 
 verify_repo_clean() {
-  local repo="$1"
-  if ( cd "${repo}" && git status --short ) | grep -q -v '^[!?][!?]'; then
-    return 1
-  else
-    return 0
-  fi
+  ! ( cd "$1" && git status --short ) | grep -q -v '^[!?][!?]'
 }
 
 verify_repo() {
-  local repo="$1"
-  if ! verify_repo_origin "${repo}"; then
-    echo "pyenv: ${repo} does not have origin." 1>&2
-    return 1
-  fi
-  if ! verify_repo_master "${repo}"; then
-    echo "pyenv: ${repo} is not on master branch." 1>&2
-    return 1
-  fi
-  if ! verify_repo_clean "${repo}"; then
-    echo "pyenv: ${repo} is not clean" 1>&2
-    return 1
-  fi
+  local stat=0
+  verify_repo_remote "$1" || {
+    stat="$?"
+    error "pyenv-update: $1 does not have ${REMOTE}."
+  }
+  verify_repo_branch "$1" || {
+    stat="$?"
+    error "pyenv-update: $1 is not on ${BRANCH} branch."
+  }
+  verify_repo_clean "$1" || {
+    stat="$?"
+    error "pyenv-update: $1 is not clean"
+  }
+  return "$stat"
 }
 
 update_repo() {
-  local repo="$1"
-  if ! verify_repo "${repo}"; then
-    return 1
-  fi
-  ( cd "${repo}" && git pull origin master )
+  info "Updating $1..."
+  verify_repo "$1" &&
+  ( cd "${repo}" && git pull "${REMOTE}" "${BRANCH}" )
 }
 
+info() {
+  { printf "\x1B[2;32m"
+    echo "$@"
+    printf "\x1B[0m"
+  }
+}
+
+error() {
+  { printf "\x1B[1;31m"
+    echo "$@"
+    printf "\x1B[0m"
+  } 1>&2
+}
+
+STATUS=0
+shopt -s nullglob
 for repo in "${PYENV_ROOT}" "${PYENV_ROOT}/plugins/"*; do
   if [ -d "${repo}/.git" ]; then
-    echo "Updating ${repo}..." 1>&2
-    update_repo "${repo}" || exit 1
+    update_repo "${repo}" || STATUS="$?"
   fi
 done
+shopt -u nullglob
+
+exit "$STATUS"
