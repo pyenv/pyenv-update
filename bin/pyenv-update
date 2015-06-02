@@ -20,7 +20,7 @@ verify_repo_branch() {
 }
 
 verify_repo_clean() {
-  ! ( cd "$1" && git status --short ) | grep -q -v '^[!?][!?]'
+  ! ( cd "$1" && git status --porcelain ) | grep -q -v '^[!?][!?]'
 }
 
 verify_repo() {
