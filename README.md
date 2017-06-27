@@ -1,6 +1,6 @@
 # pyenv-update
 
-pyenv-update is a [pyenv](https://github.com/yyuu/pyenv) plugin
+pyenv-update is a [pyenv](https://github.com/pyenv/pyenv) plugin
 that provides a `pyenv update` command to update pyenv and its plugins.
 
 This plugin was inspired from [rbenv-update](https://github.com/rkh/rbenv-update).
@@ -12,7 +12,7 @@ This plugin was inspired from [rbenv-update](https://github.com/rkh/rbenv-update
 Installing pyenv-update as a pyenv plugin will give you access to the
 `pyenv update` command.
 
-    $ git clone git://github.com/yyuu/pyenv-update.git ~/.pyenv/plugins/pyenv-update
+    $ git clone git://github.com/pyenv/pyenv-update.git ~/.pyenv/plugins/pyenv-update
 
 ## Usage
 
