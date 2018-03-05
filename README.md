@@ -1,5 +1,7 @@
 # pyenv-update
 
+[![Build Status](https://travis-ci.org/pyenv/pyenv-update.svg?branch=master)](https://travis-ci.org/pyenv/pyenv-update)
+
 pyenv-update is a [pyenv](https://github.com/pyenv/pyenv) plugin
 that provides a `pyenv update` command to update pyenv and its plugins.
 
