@@ -15,7 +15,7 @@ verify_repo_remote() {
 }
 
 verify_repo_branch() {
-  local name="$(cd "$1" && git name-rev --refs='heads/*' --name-only HEAD 2>/dev/null)"
+  local name="$(cd "$1" && git name-rev --refs='refs/heads/*' --name-only HEAD 2>/dev/null)"
   [[ "${name}" == "${BRANCH}" ]]
 }
 
