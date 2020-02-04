@@ -14,7 +14,7 @@ This plugin was inspired from [rbenv-update](https://github.com/rkh/rbenv-update
 Installing pyenv-update as a pyenv plugin will give you access to the
 `pyenv update` command.
 
-    $ git clone git://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
+    $ git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
 
 ## Usage
 
