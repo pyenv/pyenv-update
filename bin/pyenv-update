@@ -8,7 +8,10 @@ if [ -z "$PYENV_ROOT" ]; then
 fi
 
 REMOTE="${PYENV_REMOTE:-origin}"
-BRANCH="${PYENV_BRANCH:-master}"
+BRANCH="${PYENV_BRANCH}"
+
+BRANCH_CHOICE=
+ACCEPTED_BRANCHES="master main"
 
 verify_repo_remote() {
   ( cd "$1" && git remote show -n "${REMOTE}" 1>/dev/null 2>&1 )
@@ -16,7 +19,11 @@ verify_repo_remote() {
 
 verify_repo_branch() {
   local name="$(cd "$1" && git name-rev --refs='refs/heads/*' --name-only HEAD 2>/dev/null)"
-  [[ "${name}" == "${BRANCH}" ]]
+  if [ -z $BRANCH ]; then
+    [[ " $ACCEPTED_BRANCHES " =~ " ${name} " ]] && BRANCH_CHOICE=$name
+  else
+    [[ "${name}" == "${BRANCH}" ]] && BRANCH_CHOICE=$BRANCH
+  fi
 }
 
 verify_repo_clean() {
@@ -31,7 +38,11 @@ verify_repo() {
   }
   verify_repo_branch "$1" || {
     stat="$?"
-    error "pyenv-update: $1 is not on ${BRANCH} branch."
+    if [ -z $BRANCH ]; then
+      error "pyenv-update: $1 is not on one of the branches: ${ACCEPTED_BRANCHES// /, }"
+    else
+      error "pyenv-update: $1 is not on ${BRANCH} branch."
+    fi
   }
   verify_repo_clean "$1" || {
     stat="$?"
@@ -43,7 +54,7 @@ verify_repo() {
 update_repo() {
   info "Updating $1..."
   verify_repo "$1" &&
-  ( cd "${repo}" && git pull --no-rebase --ff "${REMOTE}" "${BRANCH}" )
+  ( cd "${repo}" && git pull --no-rebase --ff "${REMOTE}" "${BRANCH_CHOICE}" )
 }
 
 info() {
