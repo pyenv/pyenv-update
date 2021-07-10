@@ -54,7 +54,8 @@ verify_repo() {
 update_repo() {
   info "Updating $1..."
   verify_repo "$1" &&
-  ( cd "${repo}" && git pull --no-rebase --ff "${REMOTE}" "${BRANCH_CHOICE}" )
+  # pyenv-installer makes the repos shallow, so tags are not fetched by default
+  ( cd "${repo}" && git pull --tags --no-rebase --ff "${REMOTE}" "${BRANCH_CHOICE}" )
 }
 
 info() {
