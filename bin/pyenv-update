@@ -55,7 +55,13 @@ update_repo() {
   info "Updating $1..."
   verify_repo "$1" &&
   # pyenv-installer makes the repos shallow, so tags are not fetched by default
-  ( cd "${repo}" && git pull --tags --no-rebase --ff "${REMOTE}" "${BRANCH_CHOICE}" )
+  # Git 1.8.3 (RHEL/CentOS 7)'s `pull' doesn't support `--tags'
+  # so we have to fetch as a separate step.
+  (
+    cd "${repo}" && \
+    git fetch --tags "${REMOTE}" "${BRANCH_CHOICE}" && \
+    git merge --ff "${REMOTE}" "${BRANCH_CHOICE}"
+  )
 }
 
 info() {
