@@ -87,4 +87,6 @@ for repo in "${PYENV_ROOT}" "${PYENV_ROOT}/plugins/"*; do
 done
 shopt -u nullglob
 
+pyenv rehash || STATUS="$?"
+
 exit "$STATUS"
