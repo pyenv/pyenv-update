@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Summary: Update pyenv, its plugins including the list of available versions
+#
+# Usage: pyenv update
+#
 
 set -e
 [ -n "$PYENV_DEBUG" ] && set -x
